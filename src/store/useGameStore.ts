@@ -72,9 +72,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const state = get()
     if (state.isGameOver || !state.isPlaying) return
 
-    if (state.goldenFood && isGoldenFoodExpired(state.goldenFood)) {
-      set({ goldenFood: null })
-    }
+    const activeGoldenFood = state.goldenFood && !isGoldenFoodExpired(state.goldenFood)
+      ? state.goldenFood
+      : null
 
     const direction = state.nextDirection
     const head = state.snake[0]
@@ -89,6 +89,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         isGameOver: true,
         isPlaying: false,
         highScore: newHigh,
+        goldenFood: activeGoldenFood,
       })
       return
     }
@@ -103,12 +104,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
         isGameOver: true,
         isPlaying: false,
         highScore: newHigh,
+        goldenFood: activeGoldenFood,
       })
       return
     }
 
     const ateFood = checkFoodCollision(newHead, state.food)
-    const ateGoldenFood = checkGoldenFoodCollision(newHead, state.goldenFood)
+    const ateGoldenFood = checkGoldenFoodCollision(newHead, activeGoldenFood)
     const newSnake = ateFood || ateGoldenFood
       ? [newHead, ...state.snake]
       : [newHead, ...state.snake.slice(0, -1)]
@@ -117,8 +119,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (ateFood) newScore += 1
     if (ateGoldenFood) newScore += GOLDEN_FOOD_POINTS
 
-    const newFood = ateFood ? generateRandomFood(newSnake, undefined, ateGoldenFood ? undefined : state.goldenFood) : state.food
-    const newGoldenFood = ateGoldenFood ? null : state.goldenFood
+    const newFood = ateFood ? generateRandomFood(newSnake, undefined, ateGoldenFood ? undefined : activeGoldenFood) : state.food
+    const newGoldenFood = ateGoldenFood ? null : activeGoldenFood
 
     let spawnedGoldenFood = newGoldenFood
     if (!newGoldenFood && Math.random() < GOLDEN_FOOD_SPAWN_CHANCE) {
