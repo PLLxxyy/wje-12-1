@@ -1,11 +1,16 @@
 import { useGameStore } from '@/store/useGameStore'
 import { GRID_SIZE, CELL_SIZE } from '@/utils/constants'
+import { useGoldenFoodTimer } from '@/hooks/useGoldenFoodTimer'
 
 export function GameBoard() {
   const snake = useGameStore((state) => state.snake)
   const food = useGameStore((state) => state.food)
+  const goldenFood = useGameStore((state) => state.goldenFood)
+  const { progress, remainingTime } = useGoldenFoodTimer(goldenFood)
 
   const boardSize = GRID_SIZE * CELL_SIZE
+
+  const isUrgent = remainingTime > 0 && remainingTime < 3000
 
   return (
     <div
@@ -56,6 +61,34 @@ export function GameBoard() {
       >
         <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-green-700 rounded-full" />
       </div>
+
+      {goldenFood && (
+        <div
+          className={`absolute rounded-full shadow-glow-golden ${isUrgent ? 'animate-pulse-golden' : 'animate-pulse-fast'}`}
+          style={{
+            width: CELL_SIZE - 4,
+            height: CELL_SIZE - 4,
+            left: goldenFood.position.x * CELL_SIZE + 2,
+            top: goldenFood.position.y * CELL_SIZE + 2,
+            background: `conic-gradient(#fbbf24 ${progress * 360}deg, #78350f 0deg)`,
+          }}
+        >
+          <div
+            className="absolute bg-snake-goldenFood rounded-full"
+            style={{
+              width: CELL_SIZE - 10,
+              height: CELL_SIZE - 10,
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
+            }}
+          />
+          <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-amber-700 rounded-full" />
+          <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-xs font-pixel text-yellow-400 whitespace-nowrap">
+            +3
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -11,3 +11,7 @@ export const INITIAL_SNAKE = [
 export const INITIAL_DIRECTION = 'RIGHT' as const
 
 export const HIGH_SCORE_KEY = 'snake_high_score'
+
+export const GOLDEN_FOOD_SPAWN_CHANCE = 0.08
+export const GOLDEN_FOOD_DURATION = 8000
+export const GOLDEN_FOOD_POINTS = 3
